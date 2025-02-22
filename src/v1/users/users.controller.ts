@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   ConflictException,
   Controller,
@@ -7,6 +8,7 @@ import {
   Patch,
   Post,
   Put,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -35,19 +37,21 @@ export class UsersController {
   @Post('create_user')
   async CreateUser(@Body() userDto: UsersDto) {
     const user = await this.usersService.createUser(userDto);
-    if (user === 'User_already_exists')
-      throw new ConflictException('Username đã tồn tại trên hệ thống!');
+    if (user === 'Username_already_exists')
+      throw new ConflictException('Username đã tồn tại!');
+    else if (user === 'Email_already_exists')
+      throw new ConflictException('Email đã tồn tại!');
     return {
       status: 201,
       data: user,
     };
   }
 
-  @Patch('update_user/:id')
+  @Patch('update_user')
   @UseGuards(JwtAuthGuard, OnlyOwnerGuard, RoleGuard)
   @Roles('1', '2')
   async updateUser(
-    @Param('id') id: number,
+    @Query('id') id: number,
     @Body() userDto: UsersDto,
     @Req() req: any,
   ) {
@@ -65,6 +69,20 @@ export class UsersController {
         message: 'Cập nhật người dùng thành công!',
         data: user.data,
       };
-    else throw new ConflictException('User không có quyền thực hiện thao tác!');
+    else if (user.status === 400) {
+      throw new BadRequestException('Cập nhật thất bại');
+    } else
+      throw new ConflictException('User không có quyền thực hiện thao tác!');
+  }
+
+  @Patch('update_password')
+  async updatePassword(@Body() userDto: UsersDto) {
+    const user = await this.usersService.updatePassword(userDto);
+    if (user.status === 200)
+      return {
+        status: 200,
+        message: 'Cập nhật mật khẩu thành công!',
+      };
+    else throw new BadRequestException('Cập nhật thất bại');
   }
 }

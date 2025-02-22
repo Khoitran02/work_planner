@@ -42,10 +42,15 @@ export class UsersService {
 
   async createUser(userDto: UsersDto) {
     const { username, password, hoTen, email } = userDto;
-    const findUser = await this.usersRepository.findOne({
-      where: { username },
-    });
-    if (findUser) return 'User_already_exists';
+    const findUser = await this.usersRepository
+      .createQueryBuilder('user')
+      .where('user.username = :username', { username })
+      .orWhere('user.email = :email', { email })
+      .getOne();
+    if (findUser) {
+      if (findUser.username === username) return 'Username_already_exists';
+      if (findUser.email === email) return 'Email_already_exists';
+    }
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = this.usersRepository.create({
@@ -79,7 +84,7 @@ export class UsersService {
       );
 
       if (updateResult.affected === 0) {
-        throw new BadRequestException('Cập nhật thất bại');
+        return { status: 400 };
       }
       const dataUser_update = await this.usersRepository.findOne({
         where: { id },
@@ -91,5 +96,24 @@ export class UsersService {
         data: user_upadte,
       };
     } else return { status: 409, data: null };
+  }
+
+  async updatePassword(userDto: UsersDto) {
+    const user = await this.usersRepository.findOne({
+      where: { email: userDto.email },
+    });
+    if (!user) {
+      throw new NotFoundException('Người dùng không tồn tại');
+    }
+    const updateResult = await this.usersRepository.update(
+      { id: user.id },
+      { password: userDto.password },
+    );
+
+    if (updateResult.affected === 0) {
+      return { status: 400 };
+    }
+
+    return { status: 200 };
   }
 }
