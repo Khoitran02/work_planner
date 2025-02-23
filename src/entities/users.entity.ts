@@ -73,4 +73,9 @@ export class UsersEntity {
     nullable: true,
   })
   delete_userid: number;
+  @Column({
+    name: 'REFESHTOKEN',
+    type: 'varchar',
+  })
+  refreshToken: string;
 }

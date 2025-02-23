@@ -49,7 +49,6 @@ export class UsersController {
 
   @Patch('update_user')
   @UseGuards(JwtAuthGuard, OnlyOwnerGuard, RoleGuard)
-  @Roles('1', '2')
   async updateUser(
     @Query('id') id: number,
     @Body() userDto: UsersDto,
@@ -84,5 +83,18 @@ export class UsersController {
         message: 'Cập nhật mật khẩu thành công!',
       };
     else throw new BadRequestException('Cập nhật thất bại');
+  }
+
+  @Patch('delete_user')
+  @UseGuards(JwtAuthGuard, OnlyOwnerGuard, RoleGuard)
+  async deleteUser(@Query('id') id: number, @Req() req: any) {
+    const delete_userid = req.user.id;
+    const user = await this.usersService.deleteUser(id, delete_userid);
+    if (user.status === 200)
+      return {
+        status: 200,
+        message: 'Xóa người dùng thành công!',
+      };
+    else throw new BadRequestException('Thao tác thất bại');
   }
 }

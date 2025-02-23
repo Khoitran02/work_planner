@@ -16,6 +16,25 @@ export class UsersService {
     private usersRepository: Repository<UsersEntity>,
   ) {}
 
+  async findUserById(id: number) {
+    const findUser = await this.usersRepository.findOne({
+      select: [
+        'id',
+        'username',
+        'email',
+        'hoTen',
+        'active',
+        'create_at',
+        'update_at',
+        'update_userid',
+        'delete_at',
+        'delete_userid',
+      ],
+      where: { id },
+    });
+    return findUser;
+  }
+
   async findUser({ username }: UsersDto) {
     const findUser = await this.usersRepository.findOne({
       where: { username },
@@ -37,6 +56,7 @@ export class UsersService {
         'delete_at',
         'delete_userid',
       ],
+      where: { active: 1 },
     });
   }
 
@@ -114,6 +134,21 @@ export class UsersService {
       return { status: 400 };
     }
 
+    return { status: 200 };
+  }
+
+  async deleteUser(id: number, delete_userid: number) {
+    const user = await this.usersRepository.findOne({
+      where: { id, active: 1 },
+    });
+    if (!user) throw new NotFoundException('Người dùng không tồn tại');
+    const updateResult = await this.usersRepository.update(
+      { id },
+      { active: 0, delete_at: new Date(), delete_userid },
+    );
+    if (updateResult.affected === 0) {
+      return { status: 400 };
+    }
     return { status: 200 };
   }
 }

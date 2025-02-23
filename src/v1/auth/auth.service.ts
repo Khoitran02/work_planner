@@ -22,8 +22,18 @@ export class AuthService {
     const isPasswordValid =
       findUser.password === password ||
       (await bcrypt.compare(password, findUser.password));
-    if (!isPasswordValid) return null;
-    const { password: _, ...user } = findUser; // Loại bỏ trường password
-    return this.jwtService.sign(user);
+    if (!isPasswordValid) throw new UnauthorizedException('Sai mật khẩu!');
+    const { password: _, ...user } = findUser;
+    const accessToken = this.jwtService.sign(
+      { id: user.id, username: user.username },
+      { expiresIn: '100m' },
+    );
+    const refreshToken = this.jwtService.sign(
+      { id: user.id },
+      { expiresIn: '7d' },
+    );
+    await this.usersRepository.update(user.id, { refreshToken });
+
+    return { accessToken, refreshToken };
   }
 }

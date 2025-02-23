@@ -13,10 +13,14 @@ import { AuthService } from './auth.service';
 import { LocalGuard } from './/guards/local.guard';
 import { Request } from 'express';
 import { JwtAuthGuard } from './guards/jwt.guard';
+import { UsersService } from '../users/users.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private usersService: UsersService,
+  ) {}
 
   @Post('login')
   @UseGuards(LocalGuard)
@@ -25,22 +29,28 @@ export class AuthController {
 
     return {
       status: 201,
-      access_token: token,
+      token,
     };
   }
 
   @Get('status')
   @UseGuards(JwtAuthGuard)
-  status(@Req() req: Request) {
+  async status(@Req() req: any) {
     try {
+      const userId = req.user.id;
+      const user = await this.usersService.findUserById(userId);
+
+      if (!user) {
+        throw new UnauthorizedException('Người dùng không tồn tại!');
+      }
+
       return {
         status: 200,
-        user: req.user,
+        user,
+        about: req.user,
       };
     } catch (error) {
-      throw new UnauthorizedException(
-        'Token không hợp lệ hoặc đã hết hạn. Vui lòng đăng nhập lại!',
-      );
+      throw new UnauthorizedException('Token không hợp lệ hoặc đã hết hạn!');
     }
   }
 }
