@@ -5,6 +5,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersEntity } from './entities/users.entity';
 import { AuthModule } from './v1/auth/auth.module';
 import { UsersModule } from './v1/users/users.module';
+import { GroupsEntity } from './entities/groups.entity';
+import { GroupsMemberEntity } from './entities/group_members.entity';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -14,7 +16,7 @@ import { UsersModule } from './v1/users/users.module';
       username: 'root',
       password: '1111',
       database: 'work_planner_db',
-      entities: [UsersEntity],
+      entities: [UsersEntity, GroupsEntity, GroupsMemberEntity],
       synchronize: true,
     }),
     AuthModule,

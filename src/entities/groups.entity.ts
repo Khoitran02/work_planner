@@ -1,47 +1,22 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { GroupsMemberEntity } from './group_members.entity';
-
-@Entity({ name: 'users' })
-export class UsersEntity {
+@Entity({ name: 'groups' })
+export class GroupsEntity {
   @PrimaryGeneratedColumn({ name: 'ID' })
   id: number;
 
   @Column({
-    name: 'USERNAME',
+    name: 'GROUPNAME',
     type: 'varchar',
     nullable: false,
   })
   username: string;
 
-  @Column({
-    name: 'PASSWORD',
-    type: 'varchar',
-    nullable: false,
-  })
-  password: string;
-
-  @Column({
-    name: 'EMAIL',
-    type: 'varchar',
-    nullable: true,
-  })
-  email: string;
-
-  @Column({ name: 'HOTEN', type: 'varchar', nullable: true })
-  hoTen: string;
-
-  @Column({
-    name: 'PHANQUYEN',
-    type: 'varchar',
-    nullable: false,
-  })
-  phanquyen: string;
+  @OneToMany(() => GroupsMemberEntity, (grm) => grm.group)
+  members: GroupsMemberEntity[];
 
   @Column({ name: 'ACTIVE', type: 'int', default: 1 })
   active: number;
-
-  @OneToMany(() => GroupsMemberEntity, (gm) => gm.user)
-  groups: GroupsMemberEntity[];
 
   @Column({
     name: 'NGAY_TAO',
@@ -77,9 +52,4 @@ export class UsersEntity {
     nullable: true,
   })
   delete_userid: number;
-  @Column({
-    name: 'REFESHTOKEN',
-    type: 'varchar',
-  })
-  refreshToken: string;
 }
