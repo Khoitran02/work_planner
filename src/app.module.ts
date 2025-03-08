@@ -7,6 +7,7 @@ import { AuthModule } from './v1/auth/auth.module';
 import { UsersModule } from './v1/users/users.module';
 import { GroupsEntity } from './entities/groups.entity';
 import { GroupsMemberEntity } from './entities/group_members.entity';
+import { GroupsModule } from './v1/groups/groups.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -21,6 +22,7 @@ import { GroupsMemberEntity } from './entities/group_members.entity';
     }),
     AuthModule,
     UsersModule,
+    GroupsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

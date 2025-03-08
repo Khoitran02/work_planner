@@ -28,23 +28,25 @@ export class UsersController {
   @Roles('1')
   async GetAllUser() {
     const users = await this.usersService.findAll();
-    return {
-      status: 200,
-      data: users,
-    };
+    if (users) {
+      return {
+        status: 200,
+        data: users,
+      };
+    } else throw new BadRequestException('Thao tác thất bại!');
   }
 
   @Post('create_user')
   async CreateUser(@Body() userDto: UsersDto) {
     const user = await this.usersService.createUser(userDto);
-    if (user === 'Username_already_exists')
-      throw new ConflictException('Username đã tồn tại!');
-    else if (user === 'Email_already_exists')
-      throw new ConflictException('Email đã tồn tại!');
-    return {
-      status: 201,
-      data: user,
-    };
+    if (user) {
+      return {
+        status: 201,
+        data: user,
+      };
+    } else {
+      throw new BadRequestException('Thao tác thất bại!');
+    }
   }
 
   @Patch('update_user')
@@ -69,7 +71,7 @@ export class UsersController {
         data: user.data,
       };
     else if (user.status === 400) {
-      throw new BadRequestException('Cập nhật thất bại');
+      throw new BadRequestException('Thao tác thất bại!');
     } else
       throw new ConflictException('User không có quyền thực hiện thao tác!');
   }
@@ -82,7 +84,7 @@ export class UsersController {
         status: 200,
         message: 'Cập nhật mật khẩu thành công!',
       };
-    else throw new BadRequestException('Cập nhật thất bại');
+    else throw new BadRequestException('Thao tác thất bại!');
   }
 
   @Patch('delete_user')
@@ -95,6 +97,6 @@ export class UsersController {
         status: 200,
         message: 'Xóa người dùng thành công!',
       };
-    else throw new BadRequestException('Thao tác thất bại');
+    else throw new BadRequestException('Thao tác thất bại!');
   }
 }

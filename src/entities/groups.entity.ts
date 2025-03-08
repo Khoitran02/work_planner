@@ -10,7 +10,7 @@ export class GroupsEntity {
     type: 'varchar',
     nullable: false,
   })
-  username: string;
+  groupname: string;
 
   @OneToMany(() => GroupsMemberEntity, (grm) => grm.group)
   members: GroupsMemberEntity[];
@@ -24,6 +24,13 @@ export class GroupsEntity {
     default: () => 'CURRENT_TIMESTAMP',
   })
   create_at: Date;
+
+  @Column({
+    name: 'USER_CREATECREATE',
+    type: 'int',
+    nullable: true,
+  })
+  create_userid: number;
 
   @Column({
     name: 'NGAY_UPDATE',
